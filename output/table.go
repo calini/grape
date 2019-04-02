@@ -14,8 +14,8 @@ func Stdout(headers []string, records <-chan []string) error {
 		5,
 		5,
 		3,
-		' ', // TODO figure out what this does,
-		tabwriter.Debug|tabwriter.TabIndent,
+		' ',
+		0,
 	)
 
 	defer w.Flush()

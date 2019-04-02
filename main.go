@@ -1,20 +1,22 @@
 package main
 
 import (
-	"bufio"
-	"flag"
-	"fmt"
 	"github.com/calini/grape/flags"
 	"github.com/calini/grape/output"
 	"github.com/calini/grape/scraper"
+	"strconv"
+	"strings"
+
+	"bufio"
+	"flag"
+	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"sync"
 )
 
 const (
-	defaultConcurrency = 0
+	DEFAULT_CONCURRENCY = 1
 )
 
 var (
@@ -40,13 +42,18 @@ func init() {
 
 	// check if concurrency set
 	if !concurrency.IsSet() {
-		concurrency.Value = defaultConcurrency
+		concurrency.Value = DEFAULT_CONCURRENCY
+	}
+
+	// if no input is set
+	if !dictfile.IsSet() && (!idLow.IsSet() || !idHigh.IsSet()) {
+		log.Fatal("you must either provide a dictionary file or an index range")
 	}
 }
 
 func main() {
-	headers := []string{"name", "avatar"}
-	queries := []string{".p-name", ".avatar"} // TODO get queries from stdin.
+	headers := strings.Split(query.Value, " ")
+	queries := strings.Split(query.Value, " ")
 	// url and id are added as the first two columns.
 	headers = append([]string{"url", "id"}, headers...)
 
@@ -98,6 +105,7 @@ type task struct {
 }
 
 func createTasks(tasks chan task) {
+	defer close(tasks)
 	if dictfile.IsSet() {
 		if idLow.IsSet() && idHigh.IsSet() { // dictionary range mode.
 			passTasksFromDictRange(urlTemplate.Value, tasks, dictfile.Value, idLow.Value, idHigh.Value)
@@ -105,7 +113,7 @@ func createTasks(tasks chan task) {
 			passTasksFromDict(urlTemplate.Value, tasks, dictfile.Value)
 		}
 	} else if idLow.IsSet() && idHigh.IsSet() { // range mode.
-		passTasksRange(urlTemplate.Value, tasks, idLow.Value, idHigh.Value)
+		passTasksFromRange(urlTemplate.Value, tasks, idLow.Value, idHigh.Value)
 	} else {
 		log.Fatal("you must either provide a dictionary file or an index range")
 	}
@@ -124,7 +132,6 @@ func passTasksFromDict(url string, tasks chan task, dictFile string) {
 		t := scanner.Text()
 		tasks <- task{url: fmt.Sprintf(url, t), token: t}
 	}
-	close(tasks)
 }
 
 func passTasksFromDictRange(url string, tasks chan task, dictFile string, idLow, idHigh int) {
@@ -143,14 +150,13 @@ func passTasksFromDictRange(url string, tasks chan task, dictFile string, idLow,
 
 	for i := idLow; i > idHigh && scanner.Scan(); i++ {
 		t := scanner.Text()
+		fmt.Printf("Trying to create task: %s\n", t)
 		tasks <- task{url: fmt.Sprintf(url, t), token: t}
 	}
-	close(tasks)
 }
 
-func passTasksRange(url string, tasks chan task, idLow, idHigh int) {
+func passTasksFromRange(url string, tasks chan task, idLow, idHigh int) {
 	for i := idLow; i < idHigh; i++ {
 		tasks <- task{url: fmt.Sprintf(url, i), token: strconv.Itoa(i)}
 	}
-	close(tasks)
 }

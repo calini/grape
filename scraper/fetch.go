@@ -8,6 +8,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+const ATTRIBUTE_SEPARATOR = "§"
+
 // Fetch returns a list of rsults parsed from the link corresponding to the token
 func Fetch(url string, queries []string) ([]string, error) {
 	res, err := http.Get(url)
@@ -31,9 +33,16 @@ func Fetch(url string, queries []string) ([]string, error) {
 	}
 
 	// extract info we want.
-	r := []string{}
+	var r []string
 	for _, q := range queries {
-		r = append(r, strings.TrimSpace(doc.Find(q).Text()))
+		var result string
+		if !strings.Contains(q, ATTRIBUTE_SEPARATOR) {
+			result = doc.Find(q).Text()
+		} else {
+			query := strings.Split(q, ATTRIBUTE_SEPARATOR)
+			result, _ = doc.Find(query[0]).Attr(query[1])
+		}
+		r = append(r, strings.TrimSpace(result))
 	}
 	return r, nil
 }

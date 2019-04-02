@@ -8,6 +8,26 @@ Information is retrieved from HTML elements, and outputted as a CSV.
 
 Thanks [Francesc](https://github.com/campoy) for featuring the original repo in episode #1 of [Just For Func](https://twitter.com/justforfunc). [Watch The Video](https://www.youtube.com/watch?list=PL64wiCrrxh4Jisi7OcCJIUpguV_f5jGnZ&v=eIWFnNz8mF4) or [Review Francesc's pull request](https://github.com/philipithomas/iterscraper/pull/1).
 
+## Demo
+```sh
+grape \
+-url https://github.com/%d \
+-from 100 \
+-to 105 \
+-query ".p-name .p-org .p-label"
+```
+
+```sh
+grape \
+-url https://github.com/%s \
+-dict junk/dicts/random.txt \
+-query ".p-name .p-org .p-label"
+```
+```
+
+```
+
+
 ## Flags
 
 The manatory flag is `-url`.
