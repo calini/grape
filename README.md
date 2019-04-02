@@ -1,14 +1,16 @@
-# iterscraper
+# Grape
 
 [![Build Status](https://travis-ci.org/philipithomas/iterscraper.svg?branch=master)](https://travis-ci.org/philipithomas/iterscraper)
 
-A basic package used for scraping information from a website where URLs contain an incrementing integer. Information is retrieved from HTML5 elements, and outputted as a CSV.
+A basic package used for scraping information from a website. 
+The link can contain either an incrementing id or a token that can be passed from a file (more on that later).
+Information is retrieved from HTML elements, and outputted as a CSV.
 
-Thanks [Francesc](https://github.com/campoy) for featuring this repo in episode #1 of [Just For Func](https://twitter.com/justforfunc). [Watch The Video](https://www.youtube.com/watch?list=PL64wiCrrxh4Jisi7OcCJIUpguV_f5jGnZ&v=eIWFnNz8mF4) or [Review Francesc's pull request](https://github.com/philipithomas/iterscraper/pull/1).
+Thanks [Francesc](https://github.com/campoy) for featuring the original repo in episode #1 of [Just For Func](https://twitter.com/justforfunc). [Watch The Video](https://www.youtube.com/watch?list=PL64wiCrrxh4Jisi7OcCJIUpguV_f5jGnZ&v=eIWFnNz8mF4) or [Review Francesc's pull request](https://github.com/philipithomas/iterscraper/pull/1).
 
 ## Flags
 
-Flags are all optional, and are set with a single dash on the command line, e.g.
+The manatory flag is `-url`.
 
 ```
 iterscraper \
@@ -16,11 +18,7 @@ iterscraper \
 -from           1                   \
 -to             10                  \
 -concurrency    10                  \
--output         foo.csv             \
--nameQuery      ".name"             \
--addressQuery   ".address"          \
--phoneQuery     ".phone"            \
--emailQuery     ".email"            
+-outfile         foo.csv             \
 ```
 
 For an explanation of the options, type `iterscraper -help`

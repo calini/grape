@@ -1,136 +1,156 @@
-// iterscraper scrapes information from a website where URLs contain an incrementing integer.
-// Information is retrieved from HTML5 elements, and outputted as a CSV.
 package main
 
 import (
-	"encoding/csv"
+	"bufio"
 	"flag"
 	"fmt"
+	"github.com/calini/grape/flags"
+	"github.com/calini/grape/output"
+	"github.com/calini/grape/scraper"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"sync"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
-func main() {
-	var (
-		urlTemplate = flag.String("url", "http://example.com/v/%d", "The URL you wish to scrape, containing \"%d\" where the id should be substituted")
-		idLow       = flag.Int("from", 0, "The first ID that should be searched in the URL - inclusive.")
-		idHigh      = flag.Int("to", 1, "The last ID that should be searched in the URL - exclusive")
-		concurrency = flag.Int("concurrency", 1, "How many scrapers to run in parallel. (More scrapers are faster, but more prone to rate limiting or bandwith issues)")
-		outfile     = flag.String("output", "output.csv", "Filename to export the CSV results")
-		name        = flag.String("nameQuery", ".name", "JQuery-style query for the name element")
-		address     = flag.String("addressQuery", ".address", "JQuery-style query for the address element")
-		phone       = flag.String("phoneQuery", ".phone", "JQuery-style query for the phone element")
-		email       = flag.String("emailQuery", ".email", "JQuery-style query for the email element")
-	)
+const (
+	defaultConcurrency = 0
+)
+
+var (
+	urlTemplate flags.String
+	concurrency flags.Int
+	dictfile    flags.String
+	idLow       flags.Int
+	idHigh      flags.Int
+	query       flags.String
+	outfile     flags.String
+)
+
+// init runs before main and parses the CLI flags
+func init() {
+	flag.Var(&urlTemplate, "url", "The URL you wish to scrape, containing \"%s\" where the token will be substituted")
+	flag.Var(&concurrency, "concurrency", "How many scrapers to run in parallel. (More scrapers are faster, but more prone to rate limiting or bandwidth issues)")
+	flag.Var(&dictfile, "dict", "Filename to import a dictionary from (optional: if not provided, to and from will be used to generate integer IDs to be scraped)")
+	flag.Var(&idLow, "from", "Start of the search range - inclusive")
+	flag.Var(&idHigh, "to", "End of the search range - exclusive (if dictionary is provided, will select the range of words in the dictionary)")
+	flag.Var(&query, "query", "JQuery-style query for the element")
+	flag.Var(&outfile, "outfile", "Filename to export the CSV results")
 	flag.Parse()
 
-	columns := []string{*name, *address, *phone, *email}
-	headers := []string{"name", "address", "phone", "email"}
+	// check if concurrency set
+	if !concurrency.IsSet() {
+		concurrency.Value = defaultConcurrency
+	}
+}
+
+func main() {
+	headers := []string{"name", "avatar"}
+	queries := []string{".p-name", ".avatar"} // TODO get queries from stdin.
 	// url and id are added as the first two columns.
 	headers = append([]string{"url", "id"}, headers...)
 
-	// create all tasks and send them to the channel.
-	type task struct {
-		url string
-		id  int
-	}
+	// create tasks and send them to the channel.
 	tasks := make(chan task)
-	go func() {
-		for i := *idLow; i < *idHigh; i++ {
-			tasks <- task{url: fmt.Sprintf(*urlTemplate, i), id: i}
-		}
-		close(tasks)
-	}()
+	go createTasks(tasks)
 
 	// create workers and schedule closing results when all work is done.
 	results := make(chan []string)
 	var wg sync.WaitGroup
-	wg.Add(*concurrency)
+	wg.Add(concurrency.Value)
 	go func() {
 		wg.Wait()
 		close(results)
 	}()
 
-	for i := 0; i < *concurrency; i++ {
+	for i := 0; i < concurrency.Value; i++ {
 		go func() {
 			defer wg.Done()
 			for t := range tasks {
-				r, err := fetch(t.url, t.id, columns)
+				r, err := scraper.Fetch(t.url, queries)
 				if err != nil {
 					log.Printf("could not fetch %v: %v", t.url, err)
 					continue
+				} else {
+					log.Printf("fetched %v", t.url)
 				}
-				results <- r
+				results <- append([]string{t.url, t.token}, r...)
 			}
 		}()
 	}
 
-	if err := dumpCSV(*outfile, headers, results); err != nil {
-		log.Printf("could not write to %s: %v", *outfile, err)
+	if outfile.IsSet() {
+		// if we have an outfile, print to csv.
+		if err := output.CSV(outfile.Value, headers, results); err != nil {
+			log.Printf("could not write to %s: %v", outfile.Value, err)
+		}
+	} else {
+		// else print a table to stdout.
+		if err := output.Stdout(headers, results); err != nil {
+			log.Printf("could not print table: %v", err)
+		}
 	}
 }
 
-func fetch(url string, id int, queries []string) ([]string, error) {
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, fmt.Errorf("could not get %s: %v", url, err)
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		if res.StatusCode == http.StatusTooManyRequests {
-			return nil, fmt.Errorf("you are being rate limited")
-		}
-
-		return nil, fmt.Errorf("bad response from server: %s", res.Status)
-	}
-
-	// parse body with goquery.
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		return nil, fmt.Errorf("could not parse page: %v", err)
-	}
-
-	// extract info we want.
-	r := []string{url, strconv.Itoa(id)}
-	for _, q := range queries {
-		r = append(r, strings.TrimSpace(doc.Find(q).Text()))
-	}
-	return r, nil
+type task struct {
+	url   string
+	token string
 }
 
-func dumpCSV(path string, headers []string, records <-chan []string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return fmt.Errorf("unable to create file %s: %v", path, err)
-	}
-	defer f.Close()
-
-	w := csv.NewWriter(f)
-
-	// write headers to file.
-	if err := w.Write(headers); err != nil {
-		log.Fatalf("error writing record to csv: %v", err)
-	}
-
-	// write all records.
-	for r := range records {
-		if err := w.Write(r); err != nil {
-			log.Fatalf("could not write record to csv: %v", err)
+func createTasks(tasks chan task) {
+	if dictfile.IsSet() {
+		if idLow.IsSet() && idHigh.IsSet() { // dictionary range mode.
+			passTasksFromDictRange(urlTemplate.Value, tasks, dictfile.Value, idLow.Value, idHigh.Value)
+		} else { // dictionary mode.
+			passTasksFromDict(urlTemplate.Value, tasks, dictfile.Value)
 		}
+	} else if idLow.IsSet() && idHigh.IsSet() { // range mode.
+		passTasksRange(urlTemplate.Value, tasks, idLow.Value, idHigh.Value)
+	} else {
+		log.Fatal("you must either provide a dictionary file or an index range")
+	}
+}
+
+
+func passTasksFromDict(url string, tasks chan task, dictFile string) {
+	file, err := os.Open(dictFile)
+	if err != nil {
+		log.Fatalf("cannot open dictionary file: %v", err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		t := scanner.Text()
+		tasks <- task{url: fmt.Sprintf(url, t), token: t}
+	}
+	close(tasks)
+}
+
+func passTasksFromDictRange(url string, tasks chan task, dictFile string, idLow, idHigh int) {
+	file, err := os.Open(dictFile)
+	if err != nil {
+		log.Fatalf("cannot open dictionary file: %v", err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	// skip the first idLow tokens
+	for i := 0; i < idLow; i++ {
+		scanner.Scan()
 	}
 
-	w.Flush()
-
-	// check for extra errors.
-	if err := w.Error(); err != nil {
-		return fmt.Errorf("writer failed: %v", err)
+	for i := idLow; i > idHigh && scanner.Scan(); i++ {
+		t := scanner.Text()
+		tasks <- task{url: fmt.Sprintf(url, t), token: t}
 	}
-	return nil
+	close(tasks)
+}
+
+func passTasksRange(url string, tasks chan task, idLow, idHigh int) {
+	for i := idLow; i < idHigh; i++ {
+		tasks <- task{url: fmt.Sprintf(url, i), token: strconv.Itoa(i)}
+	}
+	close(tasks)
 }
