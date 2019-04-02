@@ -8,23 +8,60 @@ Information is retrieved from HTML elements, and outputted as a CSV.
 
 Thanks [Francesc](https://github.com/campoy) for featuring the original repo in episode #1 of [Just For Func](https://twitter.com/justforfunc). [Watch The Video](https://www.youtube.com/watch?list=PL64wiCrrxh4Jisi7OcCJIUpguV_f5jGnZ&v=eIWFnNz8mF4) or [Review Francesc's pull request](https://github.com/philipithomas/iterscraper/pull/1).
 
-## Demo
+## Modes
+There are three modes you can query for data.
+1. Iterative
 ```sh
-grape \
--url https://github.com/%d \
--from 100 \
--to 105 \
--query ".p-name .p-org .p-label"
+grape                               \
+-url      https://github.com/%d     \
+-from     100                       \
+-to       105                       \
+-query    ".p-name .p-org .p-label"
+```
+This mode will iterate over the indexes 100-105. (Interesting to see that username `100` exists)
+
+2. Dictionary
+```sh
+grape                            \
+-url      https://github.com/%s  \
+-dict     dicts/users.txt        \
+-query    ".p-name"
+```
+This mode will use a dictionary and query each term in it.
+
+An example result looks like this
+```
+url                          id        .p-name
+https://github.com/calini    calini    Calin Ilie
 ```
 
+3. Dictionary range (TODO)
+```sh
+grape                                \
+-url      https://github.com/%s      \
+-dict     dicts/users.txt            \
+-from     2                          \
+-to       4                          \
+-query    ".p-name .p-org .p-label"
+```
+This mode will use a dictionary and query each term within the specified range.
+
+
+
+## Selector Syntax
+You can select HTML elements with classic JQUery syntax (thanks to GoQuery).
+The only difference is, I have added the ability to use `§` as a separator to be able to for attributes of the element, not only it's text.
+Example:
 ```sh
 grape \
--url https://github.com/%s \
--dict junk/dicts/random.txt \
--query ".p-name .p-org .p-label"
+-url      https://github.com/%s       \
+-dict     dicts/users.txt             \
+-query    ".p-name .u-photo>img§src"
 ```
+Will produce:
 ```
-
+url                          id        .p-name       .u-photo>img§src 
+https://github.com/calini    calini    Calin Ilie    https://avatars2.githubusercontent.com/u/9298529?s=460&v=4
 ```
 
 
@@ -32,74 +69,18 @@ grape \
 
 The manatory flag is `-url`.
 
-```
-iterscraper \
--url            "http://foo.com/%d" \
--from           1                   \
--to             10                  \
--concurrency    10                  \
--outfile         foo.csv             \
-```
 
 For an explanation of the options, type `iterscraper -help`
 
 General usage of iterscraper:
 
 ```
-  -addressQuery string
-        JQuery-style query for the address element (default ".address")
-  -concurrency int
-        How many scrapers to run in parallel. (More scrapers are faster, but more prone to rate limiting or bandwith issues) (default 1)
-  -emailQuery string
-        JQuery-style query for the email element (default ".email")
-  -from int
-        The first ID that should be searched in the URL - inclusive.
-  -nameQuery string
-        JQuery-style query for the name element (default ".name")
-  -output string
-        Filename to export the CSV results (default "output.csv")
-  -phoneQuery string
-        JQuery-style query for the phone element (default ".phone")
-  -to int
-        The last ID that should be searched in the URL - exclusive (default 1)
-  -url string
-        The URL you wish to scrape, containing "%d" where the id should be substituted (default "http://example.com/v/%d")
-```
-
-## URL Structure
-
-Successive pages must look like:
-
-```
-http://example.com/foo/1/bar
-http://example.com/foo/2/bar
-http://example.com/foo/3/bar
-```
-
-iterscraper would then accept the url in the following style, in `Printf` style such that numbers may be substituted into the url:
-
-```
-http://example.com/foo/%d/bar
-```
-
-## Installation
-
-Building the source requires the [Go programming language](https://golang.org/doc/install) and the [Glide](http://glide.sh) package manager.
-
-```
-# Dependency is GoQuery
-go get github.com/PuerkitoBio/goquery
-# Get and build source
-go get github.com/philipithomas/iterscraper
-# If your $PATH is configured correctly, you can call it directly
-iterscraper [flags]
-
+TODO REPLACE THIS WITH `grape -help`
 ```
 
 
 ## Errata
 
-* This is purpose-built for some internal scraping. It's not meant to be the scraping tool for every user case, but you're welcome to modify it for your purposes
 * On a `429 - too many requests` error, the app logs and continues, ignoring the request.
-* The package will [follow up to 10 redirects](https://golang.org/pkg/net/http/#Get)
 * On a `404 - not found` error, the system will log the miss, then continue. It is not exported to the CSV.
+* The package will [follow up to 10 redirects](https://golang.org/pkg/net/http/#Get)

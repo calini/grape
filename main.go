@@ -31,11 +31,11 @@ var (
 
 // init runs before main and parses the CLI flags
 func init() {
-	flag.Var(&urlTemplate, "url", "The URL you wish to scrape, containing \"%s\" where the token will be substituted")
+	flag.Var(&urlTemplate, "url", "The URL you wish to scrape, containing \"%s\" or \"%d\" where the token will be substituted")
 	flag.Var(&concurrency, "concurrency", "How many scrapers to run in parallel. (More scrapers are faster, but more prone to rate limiting or bandwidth issues)")
-	flag.Var(&dictfile, "dict", "Filename to import a dictionary from (optional: if not provided, to and from will be used to generate integer IDs to be scraped)")
+	flag.Var(&dictfile, "dict", "Filename to import a dictionary from (optional: if not provided, to and from will be used to generate integer IDs to be scraped; if present along to and from, will select the range of words in the dictionary)")
 	flag.Var(&idLow, "from", "Start of the search range - inclusive")
-	flag.Var(&idHigh, "to", "End of the search range - exclusive (if dictionary is provided, will select the range of words in the dictionary)")
+	flag.Var(&idHigh, "to", "End of the search range - exclusive")
 	flag.Var(&query, "query", "JQuery-style query for the element")
 	flag.Var(&outfile, "outfile", "Filename to export the CSV results")
 	flag.Parse()
