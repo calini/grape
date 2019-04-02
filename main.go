@@ -107,12 +107,12 @@ type task struct {
 func createTasks(tasks chan task) {
 	defer close(tasks)
 	if dictfile.IsSet() {
-		if idLow.IsSet() && idHigh.IsSet() { // dictionary range mode.
+		if idLow.IsSet() && idHigh.IsSet() {
 			passTasksFromDictRange(urlTemplate.Value, tasks, dictfile.Value, idLow.Value, idHigh.Value)
-		} else { // dictionary mode.
+		} else {
 			passTasksFromDict(urlTemplate.Value, tasks, dictfile.Value)
 		}
-	} else if idLow.IsSet() && idHigh.IsSet() { // range mode.
+	} else if idLow.IsSet() && idHigh.IsSet() {
 		passTasksFromRange(urlTemplate.Value, tasks, idLow.Value, idHigh.Value)
 	} else {
 		log.Fatal("you must either provide a dictionary file or an index range")
@@ -147,10 +147,8 @@ func passTasksFromDictRange(url string, tasks chan task, dictFile string, idLow,
 	for i := 0; i < idLow; i++ {
 		scanner.Scan()
 	}
-
-	for i := idLow; i > idHigh && scanner.Scan(); i++ {
+	for i := idLow; scanner.Scan() && i < idHigh; i++ {
 		t := scanner.Text()
-		fmt.Printf("Trying to create task: %s\n", t)
 		tasks <- task{url: fmt.Sprintf(url, t), token: t}
 	}
 }
