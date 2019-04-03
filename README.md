@@ -34,7 +34,7 @@ url                          id        .p-name
 https://github.com/calini    calini    Calin Ilie
 ```
 
-3. Dictionary range (TODO)
+3. Dictionary range
 ```sh
 grape                                \
 -url      https://github.com/%s      \
