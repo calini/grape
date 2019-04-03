@@ -1,8 +1,7 @@
 # Grape
 
-[![Build Status](https://travis-ci.org/philipithomas/iterscraper.svg?branch=master)](https://travis-ci.org/philipithomas/iterscraper)
+This is a fork of `philipithomas/iterscraper`. Thanks, Philip I. Thomas.
 
-A basic package used for scraping information from a website. 
 The link can contain either an incrementing id or a token that can be passed from a file (more on that later).
 Information is retrieved from HTML elements, and outputted as a CSV.
 
@@ -35,7 +34,7 @@ url                          id        .p-name
 https://github.com/calini    calini    Calin Ilie
 ```
 
-3. Dictionary range (TODO)
+3. Dictionary range
 ```sh
 grape                                \
 -url      https://github.com/%s      \
