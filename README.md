@@ -7,6 +7,11 @@ Information is retrieved from HTML elements, and outputted as a CSV.
 
 Thanks [Francesc](https://github.com/campoy) for featuring the original repo in episode #1 of [Just For Func](https://twitter.com/justforfunc). [Watch The Video](https://www.youtube.com/watch?list=PL64wiCrrxh4Jisi7OcCJIUpguV_f5jGnZ&v=eIWFnNz8mF4) or [Review Francesc's pull request](https://github.com/philipithomas/iterscraper/pull/1).
 
+## Installation
+```sh
+go get ilie.io/go/grape
+```
+
 ## Modes
 There are three modes you can query for data.
 1. Iterative
