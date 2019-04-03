@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/calini/grape/flags"
-	"github.com/calini/grape/output"
-	"github.com/calini/grape/scraper"
+	"ilie.io/go/grape/flags"
+	"ilie.io/go/grape/output"
+	"ilie.io/go/grape/scraper"
 	"strconv"
 	"strings"
 
@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	DEFAULT_CONCURRENCY = 1
+	DefaultConcurrency = 1
 )
 
 var (
@@ -42,7 +42,7 @@ func init() {
 
 	// check if concurrency set
 	if !concurrency.IsSet() {
-		concurrency.Value = DEFAULT_CONCURRENCY
+		concurrency.Value = DefaultConcurrency
 	}
 
 	// if no input is set
