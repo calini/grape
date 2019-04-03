@@ -1,6 +1,6 @@
 # Grape
 
-This is a fork of philipithomas/iterscraper. Thanks, Philip I. Thomas.
+This is a fork of `philipithomas/iterscraper`. Thanks, Philip I. Thomas.
 
 The link can contain either an incrementing id or a token that can be passed from a file (more on that later).
 Information is retrieved from HTML elements, and outputted as a CSV.
