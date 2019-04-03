@@ -55,7 +55,7 @@ func main() {
 	headers := strings.Split(query.Value, " ")
 	queries := strings.Split(query.Value, " ")
 	// url and id are added as the first two columns.
-	headers = append([]string{"url", "id"}, headers...)
+	headers = append([]string{"id"}, headers...)
 
 	// create tasks and send them to the channel.
 	tasks := make(chan task)
@@ -81,7 +81,7 @@ func main() {
 				} else {
 					log.Printf("fetched %v", t.url)
 				}
-				results <- append([]string{t.url, t.token}, r...)
+				results <- append([]string{t.token}, r...)
 			}
 		}()
 	}
