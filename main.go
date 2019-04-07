@@ -1,11 +1,12 @@
 package main
 
 import (
-	"ilie.io/go/grape/flags"
-	"ilie.io/go/grape/output"
-	"ilie.io/go/grape/scraper"
 	"strconv"
 	"strings"
+
+	"github.com/calini/grape/flags"
+	"github.com/calini/grape/output"
+	"github.com/calini/grape/scraper"
 
 	"bufio"
 	"flag"
@@ -118,7 +119,6 @@ func createTasks(tasks chan task) {
 		log.Fatal("you must either provide a dictionary file or an index range")
 	}
 }
-
 
 func passTasksFromDict(url string, tasks chan task, dictFile string) {
 	file, err := os.Open(dictFile)
