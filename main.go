@@ -146,10 +146,10 @@ func passTasksFromDictRange(url string, tasks chan task, dictFile string, idLow,
 	// skip the first idLow tokens
 	for i := 0; i < idLow; i++ {
 		scanner.Scan()
-		fmt.Println(scanner.Text())
 	}
 	for i := idLow; scanner.Scan() && i < idHigh; i++ {
 		t := scanner.Text()
+		tasks <- task{url: fmt.Sprintf(url, t), token: t}
 	}
 }
 
