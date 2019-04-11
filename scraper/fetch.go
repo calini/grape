@@ -43,6 +43,7 @@ func Fetch(url string, queries []string) ([]string, error) {
 			result, _ = doc.Find(query[0]).Attr(query[1])
 		}
 		r = append(r, strings.TrimSpace(result))
+
 	}
 	return r, nil
 }
