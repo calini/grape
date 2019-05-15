@@ -1,4 +1,4 @@
-module ilie.io/go/grape
+module go.ilie.io/grape
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.0
