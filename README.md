@@ -9,7 +9,7 @@ Thanks [Francesc](https://github.com/campoy) for featuring the original repo in 
 
 ## Installation
 ```sh
-go get ilie.io/go/grape
+go get go.ilie.io/grape
 ```
 
 ## Modes
