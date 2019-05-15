@@ -4,9 +4,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/calini/grape/flags"
-	"github.com/calini/grape/output"
-	"github.com/calini/grape/scraper"
+	"go.ilie.io/grape/flags"
+	"go.ilie.io/grape/output"
+	"go.ilie.io/grape/scraper"
 
 	"bufio"
 	"flag"
