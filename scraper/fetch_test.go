@@ -14,12 +14,12 @@ type testData struct {
 func TestFetch(t *testing.T) {
 
 	Test := []testData{
-		testData{
+		{
 			"https://github.com/calini",
 			[]string{".p-name", ".p-org"},
 			[]string{"Calin Ilie", "The Hut Group"},
 		},
-		testData{
+		{
 			"https://github.com/philipithomas",
 			[]string{".p-name", ".p-org"},
 			[]string{"Philip I. Thomas", "@moonlightwork"},
