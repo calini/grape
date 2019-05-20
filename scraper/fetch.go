@@ -8,6 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// AttributeSeparator is used to select a specific field on a DOM element
 const AttributeSeparator = "§"
 
 // Fetch returns a list of results parsed from the link corresponding to the token
