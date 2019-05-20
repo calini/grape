@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	DefaultConcurrency = 1
+	defaultConcurrency = 1
 )
 
 var (
@@ -43,7 +43,7 @@ func init() {
 
 	// check if concurrency set
 	if !concurrency.IsSet() {
-		concurrency.Value = DefaultConcurrency
+		concurrency.Value = defaultConcurrency
 	}
 
 	// if no input is set
