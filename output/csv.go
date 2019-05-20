@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// CSV creates a file at path then writes the contents in CSV format
 func CSV(path string, headers []string, records <-chan []string) error {
 	f, err := os.Create(path)
 	if err != nil {
