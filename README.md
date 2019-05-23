@@ -1,6 +1,7 @@
 # Grape
 
 ![go-report-card](https://www.goreportcard.com/badge/github.com/calini/grape)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcalini%2Fgrape.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcalini%2Fgrape?ref=badge_shield)
 
 This is a fork of `philipithomas/iterscraper`. Thanks, Philip I. Thomas.
 
@@ -90,3 +91,7 @@ TODO REPLACE THIS WITH `grape -help`
 * On a `429 - too many requests` error, the app logs and continues, ignoring the request.
 * On a `404 - not found` error, the system will log the miss, then continue. It is not exported to the CSV.
 * The package will [follow up to 10 redirects](https://golang.org/pkg/net/http/#Get)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcalini%2Fgrape.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcalini%2Fgrape?ref=badge_large)
