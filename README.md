@@ -94,4 +94,7 @@ TODO REPLACE THIS WITH `grape -help`
 
 
 ## License
+
+The project itself is submitted under [MIT License](LICENSE)
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcalini%2Fgrape.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcalini%2Fgrape?ref=badge_large)
